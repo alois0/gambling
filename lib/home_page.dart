@@ -5,6 +5,8 @@ class HomePage extends StatelessWidget {
   final _tab1navigatorKey = GlobalKey<NavigatorState>();
   final _tab2navigatorKey = GlobalKey<NavigatorState>();
   final _tab3navigatorKey = GlobalKey<NavigatorState>();
+  final _tab4navigatorKey = GlobalKey<NavigatorState>();
+  final _tab5navigatorKey = GlobalKey<NavigatorState>();
 
   HomePage({super.key});
 
@@ -32,8 +34,16 @@ class HomePage extends StatelessWidget {
         ),
         PersistentTabItem(
             tab: const TabPage4(),
-            title: '',
-            icon: icon)
+            icon: Icons.gamepad,
+            title: 'Dice',
+            navigatorkey: _tab4navigatorKey
+        ),
+        PersistentTabItem(
+            tab: const TabPage5(),
+            icon: Icons.lens_sharp,
+            title: 'Loot',
+            navigatorkey: _tab5navigatorKey
+        ),
       ],
     );
   }

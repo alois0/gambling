@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gambling/home_page.dart';
-import 'package:gambling/persistent_bottom_bar_scaffold.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.red),
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
