@@ -13,7 +13,7 @@ class PersistentBottomBarScaffold extends StatefulWidget {
 
 class _PersistentBottomBarScaffoldState
     extends State<PersistentBottomBarScaffold> {
-  int _selectedTab = 0;
+  int _selectedTab = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +52,8 @@ class _PersistentBottomBarScaffoldState
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedTab,
           onTap: (index) {
-            /// Check if the tab that the user is pressing is currently selected
             if (index == _selectedTab) {
-              /// if you want to pop the current tab to its root then use
-              widget.items[index].navigatorkey?.currentState
-                  ?.popUntil((route) => route.isFirst);
-
-              /// if you want to pop the current tab to its last page
-              /// then use
-              // widget.items[index].navigatorkey?.currentState?.pop();
+              widget.items[index].navigatorkey?.currentState?.popUntil((route) => route.isFirst);
             } else {
               setState(() {
                 _selectedTab = index;
@@ -68,8 +61,17 @@ class _PersistentBottomBarScaffoldState
             }
           },
           items: widget.items
-              .map((item) => BottomNavigationBarItem(
-              icon: Icon(item.icon), label: item.title))
+              .map((item) {
+            return BottomNavigationBarItem(
+              icon: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: _selectedTab == widget.items.indexOf(item) ? 36.0 : 24.0, // Set the desired size
+                height: _selectedTab == widget.items.indexOf(item) ? 36.0 : 24.0,
+                child: Icon(item.icon, color: item.color),
+              ),
+              label: '', // Empty string to hide the label
+            );
+          })
               .toList(),
         ),
       ),
@@ -83,10 +85,13 @@ class PersistentTabItem {
   final GlobalKey<NavigatorState>? navigatorkey;
   final String title;
   final IconData icon;
+  final Color color;
 
   PersistentTabItem(
       {required this.tab,
         this.navigatorkey,
         required this.title,
-        required this.icon});
+        required this.icon,
+        required this.color,
+      });
 }

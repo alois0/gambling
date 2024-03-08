@@ -16,33 +16,38 @@ class HomePage extends StatelessWidget {
       items: [
         PersistentTabItem(
           tab: const TabPage1(),
-          icon: Icons.home,
+          color: Colors.amber,
+          icon: Icons.dataset,
           title: 'Home',
           navigatorkey: _tab1navigatorKey,
         ),
         PersistentTabItem(
           tab: const TabPage2(),
-          icon: Icons.search,
+          color: Colors.red,
+          icon: Icons.table_rows_rounded,
           title: 'Search',
           navigatorkey: _tab2navigatorKey,
         ),
         PersistentTabItem(
           tab: const TabPage3(),
-          icon: Icons.person,
+          color: Colors.blue,
+          icon: Icons.home,
           title: 'Profile',
           navigatorkey: _tab3navigatorKey,
         ),
         PersistentTabItem(
-            tab: const TabPage4(),
-            icon: Icons.gamepad,
-            title: 'Dice',
-            navigatorkey: _tab4navigatorKey
+          tab: const TabPage4(),
+          color: Colors.red,
+          icon: Icons.gamepad,
+          title: 'Dice',
+          navigatorkey: _tab4navigatorKey,
         ),
         PersistentTabItem(
-            tab: const TabPage5(),
-            icon: Icons.lens_sharp,
-            title: 'Loot',
-            navigatorkey: _tab5navigatorKey
+          tab: const TabPage5(),
+          color: Colors.amber,
+          icon: Icons.lens_sharp,
+          title: 'Loot',
+          navigatorkey: _tab5navigatorKey,
         ),
       ],
     );
