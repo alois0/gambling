@@ -1,5 +1,8 @@
+import 'package:custom_button_builder/custom_button_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:gambling/persistent_bottom_bar_scaffold.dart';
+
+
 
 class HomePage extends StatelessWidget {
   final _tab1navigatorKey = GlobalKey<NavigatorState>();
@@ -111,20 +114,63 @@ class TabPage3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int account = 95; // Replace with your actual variable for account
+    int debt = 5846; // Replace with your actual variable for debt
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Tab 3')),
+      appBar: AppBar(title: const Text('Gambler')),
+      backgroundColor: Colors.white38,
       body: SizedBox(
         width: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Tab 3'),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const Page2('tab3')));
-                },
-                child: const Text('Go to page2'))
+            const Text(
+              'Gambler',
+              style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Account: $account',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Debt: $debt',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 30),
+            CustomButton(
+              width: 300,
+              backgroundColor: Colors.white,
+              isThreeD: true,
+              height: 50,
+              borderRadius: 25,
+              animate: true,
+              margin: const EdgeInsets.all(10),
+              onPressed: () {
+                // Are you sure, on yes : new account val, new debt
+              },
+              child: const Text(
+                "Restart",
+              ),
+            ),
+            const SizedBox(height: 10),
+            CustomButton(
+              width: 300,
+              backgroundColor: Colors.white,
+              isThreeD: true,
+              height: 50,
+              borderRadius: 25,
+              animate: true,
+              margin: const EdgeInsets.all(10),
+              onPressed: () {
+                // Are you sure, on yes : new account val, new debt
+              },
+              child: const Text(
+                "Settings",
+              ),
+            ),
           ],
         ),
       ),
