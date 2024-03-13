@@ -2,8 +2,7 @@ import 'package:custom_button_builder/custom_button_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:gambling/persistent_bottom_bar_scaffold.dart';
 import 'dart:math';
-
-
+import 'dart:async';
 
 class HomePage extends StatelessWidget {
   final _tab1navigatorKey = GlobalKey<NavigatorState>();
@@ -12,12 +11,34 @@ class HomePage extends StatelessWidget {
   final _tab4navigatorKey = GlobalKey<NavigatorState>();
   final _tab5navigatorKey = GlobalKey<NavigatorState>();
 
-  static ValueNotifier<int> globalNumber = ValueNotifier<int>(500);
+  static ValueNotifier<int> balance = ValueNotifier<int>(500000);
+  static ValueNotifier<int> debt = ValueNotifier<int>(10000);
 
   HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Welcome to the Gambler"),
+            content: const Text("Enjoy losing your money"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("close"),
+              ),
+            ],
+          );
+        },
+      );
+    });
+
     return PersistentBottomBarScaffold(
       items: [
         PersistentTabItem(
@@ -68,9 +89,9 @@ class TabPage1 extends StatefulWidget {
 }
 
 class _TabPage1State extends State<TabPage1> {
-  int firstNumber = 6;
-  int secondNumber = 6;
-  int thirdNumber = 6;
+  int nFirst = 6;
+  int nSecond = 6;
+  int nThird = 6;
   int pot = 0;
   final List<int> values = [
     10,
@@ -81,49 +102,67 @@ class _TabPage1State extends State<TabPage1> {
     5000,
   ];
   final List<double> mlp = [
-    0.1,
+    0.5,
     0.6,
     0.8,
-    1.2,
-    1.4,
-    2.0,
+    1.3,
+    1.5,
+    2.25,
   ];
 
   void generateRandomNumbers() {
     setState(() {
-      firstNumber = Random().nextInt(6) + 1;
-      secondNumber = Random().nextInt(6) + 1;
-      thirdNumber = Random().nextInt(6) + 1;
+      nFirst = Random().nextInt(6) + 1;
+      nSecond = Random().nextInt(6) + 1;
+      nThird = Random().nextInt(6) + 1;
     });
   }
 
   void addToPot(index) {
     setState(() {
-      if (HomePage.globalNumber.value >= values[index]) {
+      if (HomePage.balance.value >= values[index]) {
         pot += values[index];
-        HomePage.globalNumber.value -= values[index];
+        HomePage.balance.value -= values[index];
       }
     });
   }
 
   void collectFromPot() {
     setState(() {
-      HomePage.globalNumber.value += pot;
+      HomePage.balance.value += pot;
       pot = 0;
     });
   }
 
+  int getPot() {
+    if (nFirst == 1 && nSecond == 1 && nThird == 1) {
+      return 0;
+    } else if (nFirst == 6 && nSecond == 6 && nThird == 6) {
+      return pot * 100;
+    }
+    double f = (pot * mlp[nFirst - 1] * mlp[nSecond - 1] * mlp[nThird - 1] * 1);
+    int g = f.truncate();
+    return g;
+  }
+
   void roll() {
+    generateRandomNumbers();
     setState(() {
-      generateRandomNumbers();
-      pot *= (mlp[firstNumber-1]*mlp[firstNumber-1]*mlp[firstNumber-1]) as int;
+      pot = getPot();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Dice')),
+      appBar: AppBar(
+        title: ValueListenableBuilder<int>(
+          valueListenable: HomePage.balance,
+          builder: (context, number, child) {
+            return Text('€ $number');
+          },
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -133,7 +172,7 @@ class _TabPage1State extends State<TabPage1> {
               style: TextStyle(fontSize: 20, color: Colors.black),
             ),
             Text(
-              "$pot",
+              "€ $pot",
               style: const TextStyle(fontSize: 20, color: Colors.black),
             ),
             const SizedBox(height: 20),
@@ -141,17 +180,17 @@ class _TabPage1State extends State<TabPage1> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '$firstNumber',
+                  '$nFirst',
                   style: const TextStyle(fontSize: 40, color: Colors.black),
                 ),
                 const SizedBox(width: 20),
                 Text(
-                  '$secondNumber',
+                  '$nSecond',
                   style: const TextStyle(fontSize: 40, color: Colors.black),
                 ),
                 const SizedBox(width: 20),
                 Text(
-                  '$thirdNumber',
+                  '$nThird',
                   style: const TextStyle(fontSize: 40, color: Colors.black),
                 ),
               ],
@@ -226,7 +265,14 @@ class TabPage2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tab 2')),
+      appBar: AppBar(
+        title: ValueListenableBuilder<int>(
+          valueListenable: HomePage.balance,
+          builder: (context, number, child) {
+            return Text('€ $number');
+          },
+        ),
+      ),
       body: SizedBox(
         width: double.infinity,
         child: Column(
@@ -234,7 +280,7 @@ class TabPage2 extends StatelessWidget {
           children: [
             const Text('Tab 2'),
             ValueListenableBuilder<int>(
-              valueListenable: HomePage.globalNumber,
+              valueListenable: HomePage.balance,
               builder: (context, number, child) {
                 return Text('Global Number: $number');
               },
@@ -248,7 +294,7 @@ class TabPage2 extends StatelessWidget {
               animate: true,
               margin: const EdgeInsets.all(10),
               onPressed: () {
-                HomePage.globalNumber.value++; // Increase global number
+                HomePage.balance.value++; // Increase global number
               },
               child: const Text(
                 "Increment",
@@ -261,13 +307,101 @@ class TabPage2 extends StatelessWidget {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 class TabPage3 extends StatelessWidget {
   const TabPage3({super.key});
 
+  void victoryScreen(BuildContext context) {
+    int val1 = HomePage.balance.value; // Access the value using .value
+    int val2 = HomePage.debt.value;    // Access the value using .value
+    if (val1 >= val2) {
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("DEBT SETTLED"),
+            content: const Text("Well done"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("restarting"),
+                        content: const Text("initializing conditions"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              HomePage.balance.value = 500;
+                              HomePage.debt.value = 10000;
+                              Navigator.pop(context); // Close the dialog
+                            },
+                            child: const Text("easy"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              HomePage.balance.value = 5000;
+                              HomePage.debt.value = 100000;
+                              Navigator.pop(context); // Close the dialog
+                            },
+                            child: const Text("medium"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              HomePage.balance.value = 15000;
+                              HomePage.debt.value = 500000;
+                              Navigator.pop(context); // Close the dialog
+                            },
+                            child: const Text("hard"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: const Text("Restart"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("insufficient"),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("ok")
+                ),
+              ],
+            );
+          },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    int debt = 584630; // Replace with your actual variable for debt
-
     return Scaffold(
       appBar: AppBar(title: const Text('')),
       backgroundColor: Colors.white38,
@@ -277,25 +411,30 @@ class TabPage3 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Gambler',
+              'gambler',
               style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             ValueListenableBuilder<int>(
-              valueListenable: HomePage.globalNumber,
+              valueListenable: HomePage.balance,
               builder: (context, number, child) {
                 return Text(
-                    'Account: €$number',
+                    'account: €$number',
                   style: const TextStyle(fontSize: 18),
                 );
               },
             ),
             const SizedBox(height: 10),
-            Text(
-              'Debt: € $debt',
-              style: const TextStyle(fontSize: 18),
+            ValueListenableBuilder<int>(
+              valueListenable: HomePage.debt,
+              builder: (context, number, child) {
+                return Text(
+                  'debt: €$number',
+                  style: const TextStyle(fontSize: 18),
+                );
+              },
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 40),
             CustomButton(
               width: 300,
               backgroundColor: Colors.white,
@@ -305,7 +444,63 @@ class TabPage3 extends StatelessWidget {
               animate: true,
               margin: const EdgeInsets.all(10),
               onPressed: () {
-                // Are you sure, on yes : new account val, new debt
+                victoryScreen(context);
+              },
+              child: const Text(
+                "Pay debts",
+              ),
+            ),
+            const SizedBox(height: 10),
+            CustomButton(
+              width: 300,
+              backgroundColor: Colors.white,
+              isThreeD: true,
+              height: 50,
+              borderRadius: 5,
+              animate: true,
+              margin: const EdgeInsets.all(10),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("restarting"),
+                      content: const Text("initializing conditions"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            HomePage.balance.value = 500;
+                            HomePage.debt.value = 10000;
+                            Navigator.pop(context); // Close the dialog
+                          },
+                          child: const Text("easy"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            HomePage.balance.value = 5000;
+                            HomePage.debt.value = 100000;
+                            Navigator.pop(context); // Close the dialog
+                          },
+                          child: const Text("medium"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            HomePage.balance.value = 15000;
+                            HomePage.debt.value = 500000;
+                            Navigator.pop(context); // Close the dialog
+                          },
+                          child: const Text("hard"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the dialog
+                          },
+                          child: const Text("cancel"),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: const Text(
                 "Restart",
@@ -357,7 +552,7 @@ class TabPage4 extends StatelessWidget {
               animate: true,
               margin: const EdgeInsets.all(10),
               onPressed: () {
-                HomePage.globalNumber.value++; // Increase global number
+                HomePage.balance.value++; // Increase global number
               },
               child: const Text(
                 "Increment",
@@ -385,7 +580,7 @@ class TabPage5 extends StatelessWidget {
             const Text('Tab 5'),
             ElevatedButton(
                 onPressed: () {
-                  HomePage.globalNumber.value--; // Decrease global number
+                  HomePage.balance.value--; // Decrease global number
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const Page2('tab5')));
                 },
