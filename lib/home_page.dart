@@ -11,27 +11,75 @@ class HomePage extends StatelessWidget {
   final _tab4navigatorKey = GlobalKey<NavigatorState>();
   final _tab5navigatorKey = GlobalKey<NavigatorState>();
 
-  static ValueNotifier<int> balance = ValueNotifier<int>(500000);
+  static ValueNotifier<int> balance = ValueNotifier<int>(500);
   static ValueNotifier<int> debt = ValueNotifier<int>(10000);
+
+
+  static List startBal = [30, 500, 1500, 60, 750, 2500];
+  static List startDebt = [100, 1000, 10000, 200, 2000, 20000];
+
+  void beginGame(int o, BuildContext context) {
+    num newBalance = (Random().nextInt(startBal[o]) + startBal[o + 3]) * 10;
+    num newDebt = (Random().nextInt(startDebt[o]) + startDebt[o + 3]) * 100;
+    balance.value = newBalance as int;
+    debt.value = newDebt as int;
+    // Close the initial popup
+    Navigator.of(context).pop();
+    // Navigate to the next popup
+    showDialog(
+      barrierDismissible: false,
+      context: _tab1navigatorKey.currentContext!,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Begin Game"),
+          content: const Text("Game is about to start..."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Welcome to the Gambler"),
-            content: const Text("Enjoy losing your money"),
+            content: const Text("Select difficulty:"),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  beginGame(0, context); // Easy
+                  Navigator.pop(context);
                 },
-                child: const Text("close"),
+                child: const Text("Easy"),
+              ),
+              TextButton(
+                onPressed: () {
+                  beginGame(1, context); // Medium
+                  Navigator.pop(context);
+                },
+                child: const Text("Medium"),
+              ),
+              TextButton(
+                onPressed: () {
+                  beginGame(2, context); // Hard
+                  Navigator.pop(context);
+                },
+                child: const Text("Hard"),
               ),
             ],
           );
@@ -107,7 +155,7 @@ class _TabPage1State extends State<TabPage1> {
     0.8,
     1.3,
     1.5,
-    2.25,
+    2.0,
   ];
 
   void generateRandomNumbers() {
@@ -179,19 +227,22 @@ class _TabPage1State extends State<TabPage1> {
             Row( // Use Row instead of Column for horizontal layout
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  '$nFirst',
-                  style: const TextStyle(fontSize: 40, color: Colors.black),
+                Image.asset(
+                  'assets/dicesprites/dice_$nFirst.png',
+                  height: 80,
+                  width: 80,
                 ),
                 const SizedBox(width: 20),
-                Text(
-                  '$nSecond',
-                  style: const TextStyle(fontSize: 40, color: Colors.black),
+                Image.asset(
+                  'assets/dicesprites/dice_$nSecond.png',
+                  height: 80,
+                  width: 80,
                 ),
                 const SizedBox(width: 20),
-                Text(
-                  '$nThird',
-                  style: const TextStyle(fontSize: 40, color: Colors.black),
+                Image.asset(
+                  'assets/dicesprites/dice_$nThird.png',
+                  height: 80,
+                  width: 80,
                 ),
               ],
             ),
@@ -307,18 +358,6 @@ class TabPage2 extends StatelessWidget {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 class TabPage3 extends StatelessWidget {
   const TabPage3({super.key});
 
@@ -382,20 +421,20 @@ class TabPage3 extends StatelessWidget {
       );
     } else {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("insufficient"),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("ok")
-                ),
-              ],
-            );
-          },
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("insufficient"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("ok")
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -465,7 +504,7 @@ class TabPage3 extends StatelessWidget {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text("restarting"),
-                      content: const Text("initializing conditions"),
+                      content: const Text("are you sure?"),
                       actions: [
                         TextButton(
                           onPressed: () {
