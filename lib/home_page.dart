@@ -1,5 +1,6 @@
 import 'package:custom_button_builder/custom_button_builder.dart';
 import 'package:flutter/material.dart';
+// import 'package:gambling/home_page.dart';
 import 'package:gambling/persistent_bottom_bar_scaffold.dart';
 import 'dart:math';
 
@@ -10,9 +11,8 @@ class HomePage extends StatelessWidget {
   final _tab4navigatorKey = GlobalKey<NavigatorState>();
   final _tab5navigatorKey = GlobalKey<NavigatorState>();
 
-  static ValueNotifier<int> balance = ValueNotifier<int>(500);
-  static ValueNotifier<int> debt = ValueNotifier<int>(10000);
-
+  static ValueNotifier<int> balance = ValueNotifier<int>(0);
+  static ValueNotifier<int> debt = ValueNotifier<int>(0);
 
   static List startBal = [30, 500, 1500, 60, 750, 2500];
   static List startDebt = [100, 1000, 10000, 200, 2000, 20000];
@@ -141,12 +141,12 @@ class _TabPage1State extends State<TabPage1> {
   int nThird = 6;
   int pot = 0;
   final List<int> values = [
+    1,
     10,
-    50,
     100,
-    250,
     1000,
-    5000,
+    10000,
+    100000,
   ];
   final List<double> mlp = [
     0.5,
@@ -186,6 +186,8 @@ class _TabPage1State extends State<TabPage1> {
       return 0;
     } else if (nFirst == 6 && nSecond == 6 && nThird == 6) {
       return pot * 100;
+    } else if (nFirst == 5 && nSecond == 5 && nThird == 5) {
+      return pot * 50;
     }
     double f = (pot * mlp[nFirst - 1] * mlp[nSecond - 1] * mlp[nThird - 1] * 1);
     int g = f.truncate();
@@ -199,6 +201,13 @@ class _TabPage1State extends State<TabPage1> {
     });
   }
 
+  String formatNumberWithCommas(int number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match match) => '${match[1]},',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,7 +215,7 @@ class _TabPage1State extends State<TabPage1> {
         title: ValueListenableBuilder<int>(
           valueListenable: HomePage.balance,
           builder: (context, number, child) {
-            return Text('€ $number');
+            return Text('€ ${formatNumberWithCommas(number)}');
           },
         ),
       ),
@@ -219,7 +228,7 @@ class _TabPage1State extends State<TabPage1> {
               style: TextStyle(fontSize: 20, color: Colors.black),
             ),
             Text(
-              "€ $pot",
+              "€ ${formatNumberWithCommas(pot)}",
               style: const TextStyle(fontSize: 20, color: Colors.black),
             ),
             const SizedBox(height: 20),
@@ -279,7 +288,7 @@ class _TabPage1State extends State<TabPage1> {
             ),
             const SizedBox(height: 20),
             SizedBox(
-              width: 250,
+              width: 290,
               child: GridView.count(
                 crossAxisCount: 3,
                 crossAxisSpacing: 10.0,
@@ -295,7 +304,7 @@ class _TabPage1State extends State<TabPage1> {
                       minimumSize: const Size(30, 30),
                     ),
                     child: Text(
-                      '${values[index]}',
+                      formatNumberWithCommas(values[index]),
                       style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                   );
@@ -438,6 +447,22 @@ class TabPage3 extends StatelessWidget {
     }
   }
 
+  String formatNumberWithCommas(int number) {
+    return number.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), 
+            (Match match) => '${match[1]},',
+    );
+  }
+
+  static List startBal = [30, 500, 1500, 60, 750, 2500];
+  static List startDebt = [100, 1000, 10000, 200, 2000, 300000];
+  void restartGame(o) {
+    num newBalance = (Random().nextInt(startBal[o]) + startBal[o + 3]) * 10;
+    num newDebt = (Random().nextInt(startDebt[o]) + startDebt[o + 3]) * 100;
+    HomePage.balance.value = newBalance as int;
+    HomePage.debt.value = newDebt as int;
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -457,7 +482,7 @@ class TabPage3 extends StatelessWidget {
               valueListenable: HomePage.balance,
               builder: (context, number, child) {
                 return Text(
-                    'account: €$number',
+                    'account: €${formatNumberWithCommas(number)}',
                   style: const TextStyle(fontSize: 18),
                 );
               },
@@ -467,7 +492,7 @@ class TabPage3 extends StatelessWidget {
               valueListenable: HomePage.debt,
               builder: (context, number, child) {
                 return Text(
-                  'debt: €$number',
+                  'debt: €${formatNumberWithCommas(number)}',
                   style: const TextStyle(fontSize: 18),
                 );
               },
@@ -507,24 +532,21 @@ class TabPage3 extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            HomePage.balance.value = 500;
-                            HomePage.debt.value = 10000;
+                            restartGame(0);
                             Navigator.pop(context); // Close the dialog
                           },
                           child: const Text("easy"),
                         ),
                         TextButton(
                           onPressed: () {
-                            HomePage.balance.value = 5000;
-                            HomePage.debt.value = 100000;
+                            restartGame(1);
                             Navigator.pop(context); // Close the dialog
                           },
                           child: const Text("medium"),
                         ),
                         TextButton(
                           onPressed: () {
-                            HomePage.balance.value = 15000;
-                            HomePage.debt.value = 500000;
+                            restartGame(2);
                             Navigator.pop(context); // Close the dialog
                           },
                           child: const Text("hard"),
@@ -568,32 +590,63 @@ class TabPage3 extends StatelessWidget {
   }
 }
 
-class TabPage4 extends StatelessWidget {
+class TabPage4 extends StatefulWidget {
   const TabPage4({super.key});
+
+  @override
+  _TabPage4State createState() => _TabPage4State();
+}
+
+class _TabPage4State extends State<TabPage4> {
+  int totalCrates = 0;
+
+  void openCrate() {
+    setState(() {
+      if (totalCrates > 0) {
+        totalCrates--;
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("No more crates to open!"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tab 4')),
+      appBar: AppBar(title: const Text('Loot Crates')),
       body: SizedBox(
         width: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Tab 4'),
-            CustomButton(
-              width: 300,
-              backgroundColor: Colors.white,
-              isThreeD: true,
-              height: 50,
-              borderRadius: 5,
-              animate: true,
-              margin: const EdgeInsets.all(10),
-              onPressed: () {
-                HomePage.balance.value++; // Increase global number
-              },
-              child: const Text(
-                "Increment",
+            ElevatedButton(
+              onPressed: openCrate,
+              child: const Text('Open Crate'),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: totalCrates,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Text('Crate ${index + 1}'),
+                  );
+                },
               ),
             ),
           ],
