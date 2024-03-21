@@ -649,6 +649,41 @@ class _TabPage4State extends State<TabPage4> {
                 },
               ),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const InventoryPage('tab4')));
+                },
+                child: const Text('open inventory')
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InventoryPage extends StatelessWidget {
+  final String inTab;
+
+  const InventoryPage(this.inTab, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Inventory')),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('inventory'),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => Page2(inTab)));
+                },
+                child: const Text('Go to page2'))
           ],
         ),
       ),
@@ -671,7 +706,6 @@ class TabPage5 extends StatelessWidget {
             const Text('Tab 5'),
             ElevatedButton(
                 onPressed: () {
-                  HomePage.balance.value--; // Decrease global number
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const Page2('tab5')));
                 },
@@ -719,8 +753,7 @@ class Page2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Page 2')),
-      body: SizedBox(
-        width: double.infinity,
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
