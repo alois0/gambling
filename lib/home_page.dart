@@ -141,12 +141,12 @@ class _TabPage1State extends State<TabPage1> {
   int nThird = 6;
   int pot = 0;
   final List<int> values = [
-    1,
     10,
     100,
     1000,
     10000,
     100000,
+    1000000,
   ];
   final List<double> mlp = [
     0.5,
@@ -254,7 +254,7 @@ class _TabPage1State extends State<TabPage1> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             CustomButton(
               width: 300,
               backgroundColor: Colors.white,
@@ -288,7 +288,7 @@ class _TabPage1State extends State<TabPage1> {
             ),
             const SizedBox(height: 20),
             SizedBox(
-              width: 290,
+              width: 300,
               child: GridView.count(
                 crossAxisCount: 3,
                 crossAxisSpacing: 10.0,
@@ -302,6 +302,7 @@ class _TabPage1State extends State<TabPage1> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black54,
                       minimumSize: const Size(30, 30),
+                      padding: const EdgeInsets.all(16.0),
                     ),
                     child: Text(
                       formatNumberWithCommas(values[index]),
@@ -394,24 +395,21 @@ class TabPage3 extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () {
-                              HomePage.balance.value = 500;
-                              HomePage.debt.value = 10000;
+                              restartGame(0);
                               Navigator.pop(context); // Close the dialog
                             },
                             child: const Text("easy"),
                           ),
                           TextButton(
                             onPressed: () {
-                              HomePage.balance.value = 5000;
-                              HomePage.debt.value = 100000;
+                              restartGame(1);
                               Navigator.pop(context); // Close the dialog
                             },
                             child: const Text("medium"),
                           ),
                           TextButton(
                             onPressed: () {
-                              HomePage.balance.value = 15000;
-                              HomePage.debt.value = 500000;
+                              restartGame(2);
                               Navigator.pop(context); // Close the dialog
                             },
                             child: const Text("hard"),
@@ -598,64 +596,75 @@ class TabPage4 extends StatefulWidget {
 }
 
 class _TabPage4State extends State<TabPage4> {
-  int totalCrates = 0;
 
-  void openCrate() {
+  String formatNumberWithCommas(int number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match match) => '${match[1]},',
+    );
+  }
+
+
+  List<int> crates = [];
+
+  void addCrate(n) {
     setState(() {
-      if (totalCrates > 0) {
-        totalCrates--;
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("No more crates to open!"),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("OK"),
-                ),
-              ],
-            );
-          },
-        );
-      }
+      crates.add(n);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Loot Crates')),
+      appBar: AppBar(
+        title: ValueListenableBuilder<int>(
+          valueListenable: HomePage.balance,
+          builder: (context, number, child) {
+            return Text('€ ${formatNumberWithCommas(number)}');
+          },
+        ),
+      ),
       body: SizedBox(
         width: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: openCrate,
-              child: const Text('Open Crate'),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: totalCrates,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text('Crate ${index + 1}'),
-                  );
-                },
+          SizedBox(
+          width: 650,
+          child: GridView.count(
+            padding: const EdgeInsets.all(32.0),
+            crossAxisCount: 3,
+            crossAxisSpacing: 10.0,
+            mainAxisSpacing: 10.0,
+            shrinkWrap: true,
+            children: List.generate(6, (index) {
+              return IconButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, double.infinity),
+                ),
+                icon: Image.asset(
+                  'assets/dicesprites/placeholder.png',
+                ),
+              );
+            }),
+          ),
+        ),
+            CustomButton(
+              width: 300,
+              backgroundColor: Colors.white,
+              isThreeD: true,
+              height: 50,
+              borderRadius: 5,
+              animate: true,
+              margin: const EdgeInsets.all(10),
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const InventoryPage('inventory')));
+              },
+              child: const Text(
+                "Inventory",
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const InventoryPage('tab4')));
-                },
-                child: const Text('open inventory')
             ),
           ],
         ),
@@ -671,19 +680,35 @@ class InventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount = (screenWidth / 170).floor();
     return Scaffold(
       appBar: AppBar(title: const Text('Inventory')),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('inventory'),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Page2(inTab)));
-                },
-                child: const Text('Go to page2'))
+            SizedBox(
+              width: double.infinity,
+              child: GridView.count(
+                padding: const EdgeInsets.all(16.0),
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 10.0,
+                mainAxisSpacing: 10.0,
+                shrinkWrap: true,
+                children: List.generate(60, (index) {
+                  return IconButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, double.infinity),
+                    ),
+                    icon: Image.asset(
+                      'assets/dicesprites/placeholder.png',
+                    ),
+                  );
+                }),
+              ),
+            ),
           ],
         ),
       ),
